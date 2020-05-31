@@ -1,20 +1,27 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
-import net.dv8tion.jda.bot.JDABot;
-import net.dv8tion.jda.client.JDAClient;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.hooks.IEventManager;
-import net.dv8tion.jda.core.managers.AudioManager;
-import net.dv8tion.jda.core.managers.Presence;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.restaction.GuildAction;
-import net.dv8tion.jda.core.utils.cache.CacheView;
-import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.hooks.IEventManager;
+import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.managers.DirectAudioController;
+import net.dv8tion.jda.api.managers.Presence;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.GuildAction;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.CacheView;
+import net.dv8tion.jda.api.utils.cache.SnowflakeCacheView;
+import okhttp3.OkHttpClient;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Johnny_JayJay
@@ -28,17 +35,43 @@ public class JDAMock implements JDA {
     }
 
     @Override
-    public long getPing() {
+    public long getGatewayPing() {
         return 0;
     }
 
+    @Nonnull
     @Override
-    public List<String> getCloudflareRays() {
+    public JDA awaitStatus(@Nonnull Status status, @Nonnull Status... statuses) throws InterruptedException {
         return null;
     }
 
+    @Nonnull
     @Override
-    public List<String> getWebSocketTrace() {
+    public ScheduledExecutorService getRateLimitPool() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public ScheduledExecutorService getGatewayPool() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public ExecutorService getCallbackPool() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public OkHttpClient getHttpClient() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public DirectAudioController getDirectAudioController() {
         return null;
     }
 
@@ -102,6 +135,17 @@ public class JDAMock implements JDA {
         return null;
     }
 
+    @Nonnull
+    @Override
+    public Set<String> getUnavailableGuilds() {
+        return null;
+    }
+
+    @Override
+    public boolean isUnavailable(long l) {
+        return false;
+    }
+
     @Override
     public SnowflakeCacheView<Role> getRoleCache() {
         return null;
@@ -109,6 +153,12 @@ public class JDAMock implements JDA {
 
     @Override
     public SnowflakeCacheView<Category> getCategoryCache() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public SnowflakeCacheView<StoreChannel> getStoreChannelCache() {
         return null;
     }
 
@@ -129,6 +179,12 @@ public class JDAMock implements JDA {
 
     @Override
     public SnowflakeCacheView<Emote> getEmoteCache() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public IEventManager getEventManager() {
         return null;
     }
 
@@ -178,11 +234,6 @@ public class JDAMock implements JDA {
     }
 
     @Override
-    public boolean isAudioEnabled() {
-        return false;
-    }
-
-    @Override
     public boolean isBulkDeleteSplittingEnabled() {
         return false;
     }
@@ -202,13 +253,33 @@ public class JDAMock implements JDA {
         return null;
     }
 
+    @Nonnull
     @Override
-    public JDAClient asClient() {
+    public RestAction<ApplicationInfo> retrieveApplicationInfo() {
         return null;
     }
 
+    @Nonnull
     @Override
-    public JDABot asBot() {
+    public String getInviteUrl(@Nullable Permission... permissions) {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public String getInviteUrl(@Nullable Collection<Permission> collection) {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public ShardManager getShardManager() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public RestAction<Webhook> retrieveWebhookById(@Nonnull String s) {
         return null;
     }
 }

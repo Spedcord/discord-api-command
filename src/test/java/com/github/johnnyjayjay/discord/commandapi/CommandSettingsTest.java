@@ -1,6 +1,6 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
-import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.api.JDA;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
