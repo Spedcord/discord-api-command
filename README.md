@@ -31,6 +31,11 @@ You can download the .jar-file in [this directory](https://github.com/JohnnyJayJ
 ### Adding Dependency in pom
 If you use Maven, you can add this library even less complicated: Just add the following dependency in your `pom.xml`:
 ```xml
+<repository>
+    <id>Spedcord Repo</id>
+    <url>https://maven.spedcord.xyz/</url>
+</repository>
+
 <dependency>
     <groupId>com.github.johnnyjayjay</groupId>
     <artifactId>CommandAPI</artifactId>
