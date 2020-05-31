@@ -1,6 +1,6 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -47,7 +47,7 @@ public @interface SubCommand {
     boolean moreArgs() default false;
 
     /**
-     * An array of {@link net.dv8tion.jda.core.Permission} that specifies which Permissions the self member has to have in the event channel in order to trigger this method.
+     * An array of {@link net.dv8tion.jda.api.Permission} that specifies which Permissions the self member has to have in the event channel in order to trigger this method.
      * This is NOT ignored for isDefault-SubCommands.
      * @return an empty array by default.
      */

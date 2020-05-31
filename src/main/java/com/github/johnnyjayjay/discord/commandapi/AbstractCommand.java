@@ -1,7 +1,7 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -52,7 +52,7 @@ public abstract class AbstractCommand implements ICommand {
                     subCommands.put(method.getAnnotation(SubCommand.class), method);
                 } else {
                     CommandSettings.LOGGER.warn("You are using an invalid method signature for the SubCommand-annotation on method" + getClass().getName() + "#" + method.getName()
-                            + ".\nExpected: void (com.github.johnnyjayjay.commandapi.CommandEvent, net.dv8tion.jda.core.entities.Member, net.dv8tion.jda.core.entities.TextChannel, java.lang.String[])\nFound: "
+                            + ".\nExpected: void (com.github.johnnyjayjay.commandapi.CommandEvent, net.dv8tion.jda.api.entities.Member, net.dv8tion.jda.api.entities.TextChannel, java.lang.String[])\nFound: "
                             + method.getReturnType().getName() + " (" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")\nThis method will therefore be ignored.");
                 }
             }
