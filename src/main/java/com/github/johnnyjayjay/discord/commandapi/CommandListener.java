@@ -4,8 +4,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,14 +23,23 @@ class CommandListener extends ListenerAdapter {
     }
 
     @Override
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        handleCommand(event.getMessage(), event.getResponseNumber());
+    }
+
+    @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        TextChannel channel = event.getChannel();
-        if (!settings.getBlacklistedChannels().contains(channel.getIdLong()) && (!event.getAuthor().isBot() || settings.botsMayExecute())) {
-            String raw = event.getMessage().getContentRaw();
-            String prefix = settings.getPrefix(event.getGuild().getIdLong());
+        handleCommand(event.getMessage(), event.getResponseNumber());
+    }
+
+    private void handleCommand(Message message, long responseNumber) {
+        TextChannel channel = message.getTextChannel();
+        if (!settings.getBlacklistedChannels().contains(channel.getIdLong()) && (!message.getAuthor().isBot() || settings.botsMayExecute())) {
+            String raw = message.getContentRaw();
+            String prefix = settings.getPrefix(message.getGuild().getIdLong());
             if (raw.startsWith(prefix)) {
                 long timestamp = System.currentTimeMillis();
-                long userId = event.getAuthor().getIdLong();
+                long userId = message.getAuthor().getIdLong();
                 if (cooldowns.containsKey(userId) && (timestamp - cooldowns.get(userId)) < settings.getCooldown()) {
                     if (settings.isResetCooldown())
                         cooldowns.put(userId, timestamp);
@@ -38,14 +49,14 @@ class CommandListener extends ListenerAdapter {
                 CommandEvent.Command cmd = CommandEvent.parseCommand(raw, prefix, settings);
                 if (cmd.getExecutor() != null) {
                     try {
-                        cmd.getExecutor().onCommand(new CommandEvent(event.getJDA(), event.getResponseNumber(), event.getMessage(), cmd, settings),
-                                event.getMember(), channel, cmd.getArgs());
+                        cmd.getExecutor().onCommand(new CommandEvent(message.getJDA(), responseNumber, message, cmd, settings),
+                                message.getMember(), channel, cmd.getArgs());
                     } catch (Throwable t) {
                         CommandSettings.LOGGER.warn("One of the commands had an uncaught exception:", t);
                     }
                 } else {
                     Message unknownCommand = settings.getUnknownCommandMessage();
-                    if (unknownCommand != null && event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS))
+                    if (unknownCommand != null && message.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS))
                         channel.sendMessage(unknownCommand).queue();
                 }
             }

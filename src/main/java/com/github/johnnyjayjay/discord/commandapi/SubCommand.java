@@ -53,4 +53,6 @@ public @interface SubCommand {
      */
     Permission[] botPerms() default {};
 
+    boolean guildOnly() default true;
+
 }

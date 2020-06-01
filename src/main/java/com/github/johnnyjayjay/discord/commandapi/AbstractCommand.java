@@ -1,6 +1,7 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +71,7 @@ public abstract class AbstractCommand implements ICommand {
         CommandSettings settings = event.getCommandSettings();
         Optional<SubCommand> matchesArgs = subCommands.keySet().stream()
                 .filter((sub) -> !sub.isDefault())
+                .filter((sub) -> (sub.guildOnly() && !(channel instanceof PrivateChannel)) || !sub.guildOnly())
                 .filter((sub) -> sub.args().length == args.length || (sub.moreArgs() && args.length > sub.args().length))
                 .filter((sub) -> {
                     String regex;
@@ -85,6 +87,7 @@ public abstract class AbstractCommand implements ICommand {
             this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, channel, args);
         } else {
             subCommands.keySet().stream().filter((sub) -> event.checkBotPermissions(sub.botPerms()))
+                    .filter((sub) -> (sub.guildOnly() && !(channel instanceof PrivateChannel)) || !sub.guildOnly())
                     .filter(SubCommand::isDefault).findFirst().map(subCommands::get)
                     .ifPresent((method) -> this.invokeMethod(method, event, member, channel, args));
         }
