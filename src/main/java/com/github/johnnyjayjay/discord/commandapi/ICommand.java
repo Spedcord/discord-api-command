@@ -3,6 +3,7 @@ package com.github.johnnyjayjay.discord.commandapi;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Set;
@@ -31,7 +32,7 @@ public interface ICommand {
      * @param channel The TextChannel in which the command has been called.
      * @param args The command arguments, i.e. everything behind the label ([prefix][label] [arg1] [arg2]...)
      */
-    void onCommand(final CommandEvent event, final Member member, final TextChannel channel, final String[] args);
+    void onCommand(final CommandEvent event, final Member member, final MessageChannel channel, final String[] args);
 
     /**
      * In case you are using the automated help command of this API, your command classes should override this method.

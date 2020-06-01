@@ -1,9 +1,6 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.PrivateChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -72,7 +69,7 @@ public abstract class AbstractCommand implements ICommand {
      * @see SubCommand
      */
     @Override
-    public final void onCommand(CommandEvent event, Member member, TextChannel channel, String[] args) {
+    public final void onCommand(CommandEvent event, Member member, MessageChannel channel, String[] args) {
         CommandSettings settings = event.getCommandSettings();
         Optional<SubCommand> matchesArgs = subCommands.keySet().stream()
                 .filter((sub) -> !sub.isDefault())
@@ -92,13 +89,19 @@ public abstract class AbstractCommand implements ICommand {
             if (member == null) {
                 invokeMethodFurther(subCommands.get(matchesArgs.get()), event, event.getAuthor(), channel, args);
             } else {
-                this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, channel, args);
+                this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, (TextChannel) channel, args);
             }
         } else {
             subCommands.keySet().stream().filter((sub) -> event.checkBotPermissions(sub.botPerms()))
                     .filter((sub) -> (sub.guildOnly() && !(channel instanceof PrivateChannel)) || !sub.guildOnly())
                     .filter(SubCommand::isDefault).findFirst().map(subCommands::get)
-                    .ifPresent((method) -> this.invokeMethod(method, event, member, channel, args));
+                    .ifPresent((method) -> {
+                        if (member != null) {
+                            this.invokeMethod(method, event, member, (TextChannel) channel, args);
+                        } else {
+                            this.invokeMethodFurther(method, event, event.getAuthor(), channel, args);
+                        }
+                    });
         }
     }
 
@@ -110,7 +113,7 @@ public abstract class AbstractCommand implements ICommand {
         }
     }
 
-    private void invokeMethodFurther(Method method, CommandEvent event, User user, TextChannel channel, String[] args) {
+    private void invokeMethodFurther(Method method, CommandEvent event, User user, MessageChannel channel, String[] args) {
         try {
             method.invoke(this, event, user, channel, args);
         } catch (IllegalAccessException e) {

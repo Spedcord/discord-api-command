@@ -2,6 +2,7 @@ package com.github.johnnyjayjay.discord.commandapi;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -33,7 +34,7 @@ class CommandListener extends ListenerAdapter {
     }
 
     private void handleCommand(Message message, long responseNumber) {
-        TextChannel channel = message.getTextChannel();
+        MessageChannel channel = message.getChannel();
         if (!settings.getBlacklistedChannels().contains(channel.getIdLong()) && (!message.getAuthor().isBot() || settings.botsMayExecute())) {
             String raw = message.getContentRaw();
             String prefix = settings.getPrefix(message.getGuild().getIdLong());
@@ -56,7 +57,7 @@ class CommandListener extends ListenerAdapter {
                     }
                 } else {
                     Message unknownCommand = settings.getUnknownCommandMessage();
-                    if (unknownCommand != null && message.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS))
+                    if (unknownCommand != null && ((!(channel instanceof TextChannel)) || message.getGuild().getSelfMember().hasPermission((TextChannel) channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)))
                         channel.sendMessage(unknownCommand).queue();
                 }
             }
