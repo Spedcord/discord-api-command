@@ -45,7 +45,7 @@ public abstract class AbstractCommand implements ICommand {
     protected AbstractCommand() {
         // This has to be changed as soon as onCommand changes
         final Class<?>[] parameterTypes = {CommandEvent.class, Member.class, TextChannel.class, String[].class};
-        final Class<?>[] dmParameterTypes = {CommandEvent.class, User.class, TextChannel.class, String[].class};
+        final Class<?>[] dmParameterTypes = {CommandEvent.class, User.class, MessageChannel.class, String[].class};
         this.subCommands = new HashMap<>();
         for (Method method : this.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(SubCommand.class)) {

@@ -1,6 +1,7 @@
 package com.github.johnnyjayjay.discord.commandapi;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Collections;
@@ -25,7 +26,7 @@ public abstract class AbstractHelpCommand implements ICommand {
      * you have to implement this interface on your own.
      */
     @Override
-    public final void onCommand(CommandEvent event, Member member, TextChannel channel, String[] args) {
+    public final void onCommand(CommandEvent event, Member member, MessageChannel channel, String[] args) {
         CommandSettings settings = event.getCommandSettings();
         String prefix = settings.getPrefix(event.getGuild().getIdLong());
         Map<String, ICommand> unmodifiableCommands = Collections.unmodifiableMap(settings.getCommands());

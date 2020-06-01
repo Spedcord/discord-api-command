@@ -37,7 +37,7 @@ class CommandListener extends ListenerAdapter {
         MessageChannel channel = message.getChannel();
         if (!settings.getBlacklistedChannels().contains(channel.getIdLong()) && (!message.getAuthor().isBot() || settings.botsMayExecute())) {
             String raw = message.getContentRaw();
-            String prefix = settings.getPrefix(message.getGuild().getIdLong());
+            String prefix = message.getChannel() instanceof TextChannel ? settings.getPrefix(message.getGuild().getIdLong()) : settings.getPrefix();
             if (raw.startsWith(prefix)) {
                 long timestamp = System.currentTimeMillis();
                 long userId = message.getAuthor().getIdLong();
