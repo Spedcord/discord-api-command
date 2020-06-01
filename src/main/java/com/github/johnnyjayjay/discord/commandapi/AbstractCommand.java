@@ -19,10 +19,11 @@ import java.util.stream.Collectors;
  * Instead of implementing ICommand directly, you may create sub classes of this class and register them as commands.
  * This class provides the possibility to use sub commands, making it possible to annotate methods as SubCommand methods.
  * To learn more about using sub commands, please refer to the readme on github.
+ *
  * @author JohnnyJayJay
  * @version 3.2
- * @since 3.2
  * @see ICommand
+ * @since 3.2
  */
 public abstract class AbstractCommand implements ICommand {
 
@@ -67,6 +68,7 @@ public abstract class AbstractCommand implements ICommand {
      * This overrides the method declared in {@link com.github.johnnyjayjay.discord.commandapi.ICommand ICommand}. It is final, thus it may not be overwritten.
      * To define own command methods in a sub class of this class, refer to the {@link com.github.johnnyjayjay.discord.commandapi.SubCommand SubCommand-annotation}.<br>
      * See the examples and the readme on github for further information.
+     *
      * @see SubCommand
      */
     @Override
@@ -87,7 +89,11 @@ public abstract class AbstractCommand implements ICommand {
                 })
                 .filter((sub) -> event.checkBotPermissions(sub.botPerms())).findFirst();
         if (matchesArgs.isPresent()) {
-            this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, channel, args);
+            if (member == null) {
+                invokeMethodFurther(subCommands.get(matchesArgs.get()), event, event.getAuthor(), channel, args);
+            } else {
+                this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, channel, args);
+            }
         } else {
             subCommands.keySet().stream().filter((sub) -> event.checkBotPermissions(sub.botPerms()))
                     .filter((sub) -> (sub.guildOnly() && !(channel instanceof PrivateChannel)) || !sub.guildOnly())
@@ -99,7 +105,7 @@ public abstract class AbstractCommand implements ICommand {
     private void invokeMethod(Method method, CommandEvent event, Member member, TextChannel channel, String[] args) {
         try {
             method.invoke(this, event, member, channel, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             invokeMethodFurther(method, event, member.getUser(), channel, args);
         }
     }
