@@ -3,6 +3,7 @@ package com.github.johnnyjayjay.discord.commandapi;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -46,10 +47,12 @@ public abstract class AbstractCommand implements ICommand {
     protected AbstractCommand() {
         // This has to be changed as soon as onCommand changes
         final Class<?>[] parameterTypes = {CommandEvent.class, Member.class, TextChannel.class, String[].class};
+        final Class<?>[] dmParameterTypes = {CommandEvent.class, Member.class, TextChannel.class, String[].class};
         this.subCommands = new HashMap<>();
         for (Method method : this.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(SubCommand.class)) {
-                if (method.getReturnType().equals(Void.TYPE) && Modifier.isPublic(method.getModifiers()) && Arrays.equals(method.getParameterTypes(), parameterTypes)) {
+                if (method.getReturnType().equals(Void.TYPE) && Modifier.isPublic(method.getModifiers())
+                        && (Arrays.equals(method.getParameterTypes(), parameterTypes) || Arrays.equals(method.getParameterTypes(), dmParameterTypes))) {
                     subCommands.put(method.getAnnotation(SubCommand.class), method);
                 } else {
                     CommandSettings.LOGGER.warn("You are using an invalid method signature for the SubCommand-annotation on method" + getClass().getName() + "#" + method.getName()
@@ -96,6 +99,14 @@ public abstract class AbstractCommand implements ICommand {
     private void invokeMethod(Method method, CommandEvent event, Member member, TextChannel channel, String[] args) {
         try {
             method.invoke(this, event, member, channel, args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            invokeMethodFurther(method, event, member.getUser(), channel, args);
+        }
+    }
+
+    private void invokeMethodFurther(Method method, CommandEvent event, User user, TextChannel channel, String[] args) {
+        try {
+            method.invoke(this, event, user, channel, args);
         } catch (IllegalAccessException e) {
             CommandSettings.LOGGER.error("An Exception occurred while trying to invoke sub command method; Please report this in a github issue. https://github.com/JohnnyJayJay/discord-api-command/issues", e);
         } catch (InvocationTargetException e) {
