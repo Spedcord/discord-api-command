@@ -37,6 +37,8 @@ public abstract class AbstractCommand implements ICommand {
      */
     protected final String CHANNEL_MENTION = "<#\\d+>";
 
+    protected long cooldown = 0;
+
     private final Map<SubCommand, Method> subCommands;
 
     /**
@@ -86,10 +88,12 @@ public abstract class AbstractCommand implements ICommand {
                 })
                 .filter((sub) -> event.checkBotPermissions(sub.botPerms())).findFirst();
         if (matchesArgs.isPresent()) {
+            SubCommand subCommand = matchesArgs.get();
+
             if (member == null) {
-                invokeMethodFurther(subCommands.get(matchesArgs.get()), event, event.getAuthor(), channel, args);
+                invokeMethodFurther(subCommands.get(subCommand), event, event.getAuthor(), channel, args);
             } else {
-                this.invokeMethod(subCommands.get(matchesArgs.get()), event, member, (TextChannel) channel, args);
+                this.invokeMethod(subCommands.get(subCommand), event, member, (TextChannel) channel, args);
             }
         } else {
             subCommands.keySet().stream().filter((sub) -> event.checkBotPermissions(sub.botPerms()))
@@ -121,6 +125,10 @@ public abstract class AbstractCommand implements ICommand {
         } catch (InvocationTargetException e) {
             CommandSettings.LOGGER.warn("One of the commands had an uncaught exception:", e.getCause());
         }
+    }
+
+    public long getCooldown() {
+        return cooldown;
     }
 
     // algorithm to find the best fitting method for a specified name. Currently it's not used

@@ -7,16 +7,16 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.internal.utils.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 class CommandListener extends ListenerAdapter {
 
     private CommandSettings settings;
-    private Map<Long, Long> cooldowns; // Long: User id, Long: last timestamp
+    private Map<Long, Set<Pair<ICommand, Long>>> cooldowns; // Long: User id, <Long: last timestamp, ICommand: command>
 
     public CommandListener(CommandSettings settings) {
         this.settings = settings;
@@ -41,14 +41,28 @@ class CommandListener extends ListenerAdapter {
             if (raw.startsWith(prefix)) {
                 long timestamp = System.currentTimeMillis();
                 long userId = message.getAuthor().getIdLong();
-                if (cooldowns.containsKey(userId) && (timestamp - cooldowns.get(userId)) < settings.getCooldown()) {
-                    if (settings.isResetCooldown())
-                        cooldowns.put(userId, timestamp);
-                    return;
-                }
-                cooldowns.put(userId, timestamp);
+
                 CommandEvent.Command cmd = CommandEvent.parseCommand(raw, prefix, settings);
                 if (cmd.getExecutor() != null) {
+                    if(cooldowns.containsKey(userId)) {
+                        Set<Pair<ICommand, Long>> set = cooldowns.get(userId);
+                        Optional<Pair<ICommand, Long>> pairOptional = set.stream().filter(pair -> pair.getLeft() == cmd.getExecutor()).findAny();
+                        if(pairOptional.isPresent() && (timestamp - pairOptional.get().getRight()) < settings.getCooldown(cmd.getExecutor())) {
+                            if (settings.isResetCooldown()) {
+                                Pair<ICommand, Long> pair = pairOptional.get();
+                                set.remove(pair);
+                                set.add(constructPair(cmd.getExecutor(), timestamp));
+                            }
+                            return;
+                        }
+
+                        set.add(constructPair(cmd.getExecutor(), timestamp));
+                    } else {
+                        Set<Pair<ICommand, Long>> set = new HashSet<>();
+                        set.add(constructPair(cmd.getExecutor(), timestamp));
+                        cooldowns.put(userId, set);
+                    }
+
                     try {
                         cmd.getExecutor().onCommand(new CommandEvent(message.getJDA(), responseNumber, message, cmd, settings),
                                 message.getMember(), channel, cmd.getArgs());
@@ -62,5 +76,19 @@ class CommandListener extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    private Pair<ICommand, Long> constructPair(ICommand left, Long right) {
+        return new Pair<ICommand, Long>() {
+            @Override
+            public ICommand getLeft() {
+                return left;
+            }
+
+            @Override
+            public Long getRight() {
+                return right;
+            }
+        };
     }
 }

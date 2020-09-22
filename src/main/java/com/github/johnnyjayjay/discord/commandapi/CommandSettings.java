@@ -55,6 +55,7 @@ public class CommandSettings {
     @Deprecated
     private Set<String> helpLabels; // labels which trigger the auto-generated help command
     private final Map<Long, String> prefixMap; // Long: GuildID, String: prefix
+    private final Map<ICommand, Long> commandCooldownMap;
 
     private final Map<String, ICommand> commands; // String: command label, ICommand: command class
 
@@ -111,6 +112,7 @@ public class CommandSettings {
         this.helpLabels = new HashSet<>();
         this.blacklistedChannels = new HashSet<>();
         this.prefixMap = new HashMap<>();
+        this.commandCooldownMap = new HashMap<>();
     }
 
     /**
@@ -299,8 +301,12 @@ public class CommandSettings {
      * @throws CommandSetException If the label is empty or consists of multiple words.
      */
     public CommandSettings put(@Nonnull ICommand executor, String label) {
-        if (label.matches(VALID_LABEL))
+        if (label.matches(VALID_LABEL)) {
             this.commands.put(labelIgnoreCase ? label.toLowerCase() : label, executor);
+            if(executor instanceof AbstractCommand) {
+                setCooldown(executor, ((AbstractCommand) executor).getCooldown());
+            }
+        }
         else
             throw new CommandSetException(INVALID_LABEL_MESSAGE, new IllegalArgumentException("Label " + label + " is not valid"));
 
@@ -539,6 +545,10 @@ public class CommandSettings {
             throw new CommandSetException("CommandSettings weren't activated yet and can therefore not be deactivated!", new IllegalStateException("Cannot deactivate CommandSettings in current state"));
     }
 
+    public void setCooldown(ICommand command, long cooldown) {
+        commandCooldownMap.put(command, cooldown);
+    }
+
     /**
      * Use this method to get the prefix for a specific guild.
      * @param guildId The id of the guild to check.
@@ -626,6 +636,14 @@ public class CommandSettings {
      */
     public long getCooldown() {
         return this.cooldown;
+    }
+
+    /**
+     * Returns the currently set cooldown for the command.
+     * @return The cooldown in milliseconds.
+     */
+    public long getCooldown(ICommand command) {
+        return commandCooldownMap.getOrDefault(command, getCooldown());
     }
 
     /**
