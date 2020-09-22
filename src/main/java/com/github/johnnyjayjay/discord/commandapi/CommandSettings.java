@@ -704,7 +704,9 @@ public class CommandSettings {
         return cooldownMessage;
     }
 
-    public void setCooldownMessage(Message cooldownMessage) {
+    public CommandSettings setCooldownMessage(Message cooldownMessage) {
         this.cooldownMessage = cooldownMessage;
+        return this;
     }
+
 }
