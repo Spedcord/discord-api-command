@@ -53,6 +53,10 @@ class CommandListener extends ListenerAdapter {
                                 set.remove(pair);
                                 set.add(constructPair(cmd.getExecutor(), timestamp));
                             }
+
+                            if(settings.getCooldownMessage() != null) {
+                                channel.sendMessage(settings.getCooldownMessage()).queue();
+                            }
                             return;
                         }
 

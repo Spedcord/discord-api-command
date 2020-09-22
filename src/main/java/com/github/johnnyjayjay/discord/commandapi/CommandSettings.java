@@ -47,6 +47,7 @@ public class CommandSettings {
     private final String INVALID_LABEL_MESSAGE = "Label cannot be empty, consist of multiple words or contain new lines!";
 
     private Message unknownCommandMessage;
+    private Message cooldownMessage;
     private String defaultPrefix;
     private long cooldown;
     private Color helpColor;
@@ -697,5 +698,13 @@ public class CommandSettings {
 
     protected Map<String, ICommand> getCommands() {
         return this.commands;
+    }
+
+    public Message getCooldownMessage() {
+        return cooldownMessage;
+    }
+
+    public void setCooldownMessage(Message cooldownMessage) {
+        this.cooldownMessage = cooldownMessage;
     }
 }
