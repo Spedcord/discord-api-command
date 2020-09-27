@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -47,7 +49,7 @@ public class CommandSettings {
     private final String INVALID_LABEL_MESSAGE = "Label cannot be empty, consist of multiple words or contain new lines!";
 
     private Message unknownCommandMessage;
-    private Message cooldownMessage;
+    private Supplier<Message> cooldownMessage;
     private String defaultPrefix;
     private long cooldown;
     private Color helpColor;
@@ -701,10 +703,10 @@ public class CommandSettings {
     }
 
     public Message getCooldownMessage() {
-        return cooldownMessage;
+        return cooldownMessage.get();
     }
 
-    public CommandSettings setCooldownMessage(Message cooldownMessage) {
+    public CommandSettings setCooldownMessage(Supplier<Message> cooldownMessage) {
         this.cooldownMessage = cooldownMessage;
         return this;
     }
