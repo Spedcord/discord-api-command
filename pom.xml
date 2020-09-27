@@ -7,7 +7,7 @@
     <groupId>com.github.johnnyjayjay</groupId>
     <artifactId>CommandAPI</artifactId>
     <packaging>jar</packaging>
-    <version>3.3.2</version>
+    <version>3.3.3</version>
 
     <build>
         <plugins>
